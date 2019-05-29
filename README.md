@@ -35,6 +35,8 @@ grub-mkrescue -o myos.iso isodir
 
 # Running the OS via QEMU
 `qemu-system-i386 -cdrom myos.iso`
+## Boot failed: Could not read from CDROM (code 0009)
+If your development system is booted from EFI it may be that you don't have the PC-BIOS version of the grub binaries installed anywhere. If you install them then grub-mkrescue will by default produce a hybrid ISO that will work in QEMU. On Ubuntu this can be achieved with: apt-get install grub-pc-bin.
 
 # Developing
 If you are editing kernel.c just run the compile.sh script and it will rebuild the project and launch the OS
