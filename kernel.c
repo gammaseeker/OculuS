@@ -76,6 +76,14 @@ void terminal_setcolor(uint8_t color)
 {
     terminal_color = color;
 }
+
+void terminal_scroll(){
+    for(size_t i = 0; i < VGA_HEIGHT; i++){
+        for(size_t j = 0; j < VGA_WIDTH; j++){
+            terminal_buffer[i * VGA_WIDTH + j] = terminal_buffer[(i + 1) * VGA_WIDTH + j];
+        }
+    }
+}
  
 void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) 
 {
@@ -94,8 +102,9 @@ void terminal_putchar(char c)
     }
     if (++terminal_column == VGA_WIDTH) {
         terminal_column = 0;
-        if (++terminal_row == VGA_HEIGHT)
+        if (++terminal_row == VGA_HEIGHT){
             terminal_row = 0;
+        }
     }
 }
  
@@ -107,7 +116,34 @@ void terminal_write(const char* data, size_t size)
  
 void terminal_writestring(const char* data) 
 {
+    if(terminal_row == VGA_HEIGHT){
+        terminal_scroll();
+        terminal_row = VGA_HEIGHT - 1;
+    }
     terminal_write(data, strlen(data));
+}
+
+//Prints a string 30 times in various colors to fill the terminal - used to test scrolling
+void fill_terminal(const char* string){
+    int i;
+
+    terminal_setcolor(VGA_COLOR_RED);
+    for(i =0; i<2;i++){
+        terminal_writestring(string);
+    }
+    terminal_setcolor(VGA_COLOR_WHITE);
+    for(i =0; i<6;i++){
+        terminal_writestring(string);
+    }
+    terminal_setcolor(VGA_COLOR_BLUE);
+    for(i =0; i<17;i++){
+        terminal_writestring(string);
+    }
+    terminal_setcolor(VGA_COLOR_GREEN);
+    for(i =0; i<5;i++){
+        terminal_writestring(string);
+    }
+
 }
  
 void kernel_main(void) 
@@ -115,32 +151,6 @@ void kernel_main(void)
     /* Initialize terminal interface */
     terminal_initialize();
  
-    /* Newline support is left as an exercise. */
-    //terminal_writestring("Hello, OculuS World!\n");
-    //terminal_writestring("This is a new line\n");
-    /*
-    terminal_writestring("                           `-.\n");
-    terminal_writestring("                            .`\n");
-    terminal_writestring("                         _.`.`\n");
-    terminal_writestring("                     _.-` .`\n");
-    terminal_writestring("             ___.---` _.-`\n");
-    terminal_writestring("     __..---`___..---`\n");
-    terminal_writestring("_...--.-`   _.--`\n");
-                  _.-`.-`.-`  _.-`
-               .-` .`  .`   .`
-    .         /   /   /    /                    .
-    \`-.._    |  |    \    `.              _..-`/
-   .'-.._ ``--.._\     `. -- `.      _..-``  _..-`.
-   `_    _       `-. .`        `. .-`      _    _`
-     `.``           .            \          ``.`
-      `-.-'    _   .              :   _   `-.-`
-        `..-..'    ;       .` `.  '    `..-..`
-            /      .      : .-. : :        \
-            `._     \     ;( O ) /      _.`
-     LGB       `-._.'`.    .`-'.' `._.-'
-                       `-....-` 
-
-*/
     terminal_writestring("\
                                                     `-.\n\
                                                       .`\n\
@@ -163,4 +173,6 @@ void kernel_main(void)
      LGB       `-._.'`.    .`-'.' `._.-'\n\
                        `-....-` \n\
 Welcome to OculuS");
+
+    fill_terminal("Hello, kernel world!\n");
 }
